@@ -9,6 +9,7 @@ public class WordleGame {
     private final Map<Integer, Character> correctPositions = new LinkedHashMap<>();
     private final Set<Character> incorrectLetters = new HashSet<>();
     private final List<String> attempts = new ArrayList<>();
+    private final Map<Character, Set<Integer>> yellowLetters = new HashMap<>();
     private boolean wordGuessed = false;
     private String lastPattern = "";
 
@@ -49,6 +50,10 @@ public class WordleGame {
                 correctPositions.put(i, guess.charAt(i));
             } else if (answer.contains(String.valueOf(guess.charAt(i)))) {
                 match.append("^");
+                yellowLetters.put(guess.charAt(i), new HashSet<>());
+                if (yellowLetters.containsKey(guess.charAt(i))) {
+                    yellowLetters.get(guess.charAt(i)).add(i);
+                }
             } else {
                 match.append("-");
                 incorrectLetters.add(guess.charAt(i));
@@ -94,6 +99,19 @@ public class WordleGame {
             char letter = word.charAt(i);
             if (incorrectLetters.contains(letter)) {
                 return false;
+            }
+        }
+
+        for (Map.Entry<Character, Set<Integer>> entry : yellowLetters.entrySet()) {
+
+            if (!word.contains(String.valueOf(entry.getKey()))) {
+                return false;
+            }
+
+            for (int pos : entry.getValue()) {
+                if (word.charAt(pos) == entry.getKey()) {
+                    return false;
+                }
             }
         }
 
